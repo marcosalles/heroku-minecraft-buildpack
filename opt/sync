@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+worldName=$(cat server.properties | grep level-name | sed -E 's/[^=]+=//g')
+worldName=${worldName:-world}
+backupFileList=("${worldName}" "${worldName}_nether" "${worldName}_the_end" plugins server.properties *.json *.txt)
+
 if [ -n "$AWS_BUCKET" ]; then
   cat << EOF > .s3cfg
 [default]
@@ -7,31 +11,29 @@ access_key = ${AWS_ACCESS_KEY}
 secret_key = ${AWS_SECRET_KEY}
 EOF
   if [ -d world ]; then
-    s3cmd sync world/ s3://${AWS_BUCKET}/world/
-    s3cmd sync plugins/ s3://${AWS_BUCKET}/plugins/
+    for file in "${backupFileList[@]}"; do
+      s3cmd sync ${file} s3://${AWS_BUCKET}/${file}
+    done
   else
-    mkdir -p world
-    cd world
-    s3cmd get --recursive s3://${AWS_BUCKET}/world/
-    s3cmd get --recursive s3://${AWS_BUCKET}/plugins/
-    cd ..
+    s3cmd get --recursive s3://${AWS_BUCKET}/
   fi
   rm .s3cfg
 fi
 
 if [ -n "$DROPBOX_ACCESS_TOKEN" ]; then
+  filePath="${DROPBOX_BACKUP_FILE:-Minecraft/backup}"
   cat << EOF > .dropbox_uploader
 OAUTH_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
 EOF
   if [ -d world ]; then
-    tar -czvf backup.tar.gz world world_nether world_the_end plugins
-    bin/dropbox_uploader.sh upload backup.tar.gz /
-    rm backup.tar.gz
+    tar -czvf "${filePath}.tar.gz"
+    bin/dropbox_uploader.sh upload "${filePath}.tar.gz" /
+    rm "${filePath}.tar.gz"
   else
-    if bin/dropbox_uploader.sh download /backup.tar.gz
+    if bin/dropbox_uploader.sh download /"${filePath}.tar.gz"
     then
-      tar -xzvf backup.tar.gz
-      rm backup.tar.gz
+      tar -xzvf "${filePath}.tar.gz"
+      rm "${filePath}.tar.gz"
     fi
   fi
   rm .dropbox_uploader
