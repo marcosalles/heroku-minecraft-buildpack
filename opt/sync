@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-worldName=$(cat server.properties | grep level-name | sed -E 's/[^=]+=//g')
-worldName=${worldName:-world}
-backupFileList=("${worldName}" "${worldName}_nether" "${worldName}_the_end" plugins server.properties *.json *.txt)
+backupFileList="world world_nether world_the_end plugins server.properties *.json *.txt"
 
 if [ -n "$AWS_BUCKET" ]; then
   cat << EOF > .s3cfg
@@ -10,8 +8,8 @@ if [ -n "$AWS_BUCKET" ]; then
 access_key = ${AWS_ACCESS_KEY}
 secret_key = ${AWS_SECRET_KEY}
 EOF
-  if [ -d "${worldName}" ]; then
-    for file in $(echo ${backupFileList[@]} | ls -1); do
+  if [ -d world ]; then
+    for file in $(ls -1 $(echo $backupFileList) 2> /dev/null); do
       s3cmd sync ${file} s3://${AWS_BUCKET}/${file}
     done
   else
@@ -26,8 +24,8 @@ if [ -n "$DROPBOX_ACCESS_TOKEN" ]; then
   cat << EOF > .dropbox_uploader
 OAUTH_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
 EOF
-  if [ -d "${worldName}" ]; then
-    tar -czvf "${fileName}" $(echo ${backupFileList[@]} | ls -1)
+  if [ -d world ]; then
+    tar -czvf "${fileName}" $(ls -1 $(echo $backupFileList) 2> /dev/null)
     bin/dropbox_uploader.sh upload "${fileName}" "/${filePath}"
     rm "${fileName}"
   else
