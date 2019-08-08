@@ -21,19 +21,20 @@ EOF
 fi
 
 if [ -n "$DROPBOX_ACCESS_TOKEN" ]; then
-  filePath="${DROPBOX_BACKUP_FILE:-Minecraft/backup}"
+  fileName="${DROPBOX_BACKUP_FILE:-backup}.tar.gz"
+  filePath="${DROPBOX_BACKUP_DIR:-}"
   cat << EOF > .dropbox_uploader
 OAUTH_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
 EOF
-  if [ -d world ]; then
-    tar -czvf "${filePath}.tar.gz" $(echo ${backupFileList[@]} | ls -1)
-    bin/dropbox_uploader.sh upload "${filePath}.tar.gz" /
-    rm "${filePath}.tar.gz"
+  if [ -d "${worldName}" ]; then
+    tar -czvf "${fileName}" $(echo ${backupFileList[@]} | ls -1)
+    bin/dropbox_uploader.sh upload "${fileName}" "/${filePath}"
+    rm "${fileName}"
   else
-    if bin/dropbox_uploader.sh download /"${filePath}.tar.gz"
+    if bin/dropbox_uploader.sh download "/${filePath}/${fileName}"
     then
-      tar -xzvf "${filePath}.tar.gz"
-      rm "${filePath}.tar.gz"
+      tar -xzvf "${fileName}"
+      rm "${fileName}"
     fi
   fi
   rm .dropbox_uploader
