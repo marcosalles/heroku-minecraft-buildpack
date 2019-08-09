@@ -9,7 +9,7 @@ access_key = ${AWS_ACCESS_KEY}
 secret_key = ${AWS_SECRET_KEY}
 EOF
   if [ -d world ]; then
-    for file in $(ls -1 $(echo $backupFileList) 2> /dev/null); do
+    for file in $(ls -d1 $(echo $backupFileList) 2> /dev/null); do
       s3cmd sync ${file} s3://${AWS_BUCKET}/${file}
     done
   else
@@ -25,7 +25,7 @@ if [ -n "$DROPBOX_ACCESS_TOKEN" ]; then
 OAUTH_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
 EOF
   if [ -d world ]; then
-    tar -czvf "${fileName}" $(ls -1 $(echo $backupFileList) 2> /dev/null)
+    tar -czvf "${fileName}" $(ls -d1 $(echo $backupFileList) 2> /dev/null)
     bin/dropbox_uploader.sh upload "${fileName}" "/${filePath}"
     rm "${fileName}"
   else
