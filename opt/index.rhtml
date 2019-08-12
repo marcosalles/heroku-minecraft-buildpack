@@ -1,7 +1,24 @@
 <% open('ngrok.log') do |f| %>
-  <% f.lines.select { |line| line.include?("URL:") }.each do |line| %>
-    Minecraft Server IP: <%= line.match(/tcp:\/\/(.+:[0-9]+) /)[1] %>.
-    Please wait at least a minute before joining the server.
-    <br />
+<div>
+  <% f.lines.select { |line| line.include?("URL:") }.each do |line|
+       url = line.match(/tcp:\/\/(.+:[0-9]+) /)[1]
+  %>
+  <div>
+    <p><strong>Minecraft Server IP:</strong><pre><%= url %></pre></p>
+    <p>Please wait at least a minute before joining the server.</p>
+    <p><strong>Próximo refresh:</strong><pre data-url="<%= url %>"></pre></p>
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", () => {
+        let date = new Date();
+        date.setMinutes( date.getMinutes() + 25 );
+        document.querySelector('[data-url="<%= url %>"]').innerHTML = date.toTimeString().replace(/ .*/, '');
+        setTimeout(
+          window.location.reload.bind(window.location),
+          date.getTime() - new Date().getTime()
+        );
+      });
+      </script>
   <% end %>
+  </div>
+</div>
 <% end %>
