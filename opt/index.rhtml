@@ -4,9 +4,9 @@
        url = line.match(/tcp:\/\/(.+:[0-9]+) /)[1]
   %>
   <div>
-    <p><strong>Minecraft Server IP:</strong><pre><%= url %></pre></p>
+    <p><strong>Minecraft Server address:</strong><pre><%= url %></pre></p>
     <p>Please wait at least a minute before joining the server.</p>
-    <p><strong>Próximo refresh:</strong><pre data-url="<%= url %>"></pre></p>
+    <p><strong>Next refresh:</strong><pre data-url="<%= url %>"></pre></p>
     <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", () => {
         let date = new Date();
