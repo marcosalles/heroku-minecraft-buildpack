@@ -9,12 +9,26 @@
     <p>
       <label>
         <strong>Auto refresh:</strong>
-        <input type="checkbox" data-refresh="<%= url %>">
+        <input type="checkbox" data-refresh="<%= url %>" onchange="changeCheckbox">
       </label>
       <pre data-url="<%= url %>"></pre>
     </p>
     <script type="text/javascript">
       window.location.reload.bind(window.location);
+
+      const updateCheckbox = () => {
+        document.querySelector('[data-refresh="<%= url %>"]').checked = window.location.search.includes('autorefresh');
+      };
+
+      const changeCheckbox = () => {
+        const checked = document.querySelector('[data-refresh="<%= url %>"]').checked;
+        if (!checked) {
+          window.location = window.location.origin;
+        } else {
+          window.location = `${window.location.origin}?autorefresh`;
+        }
+      };
+
       const tryToRefresh = () => {
         let date = new Date();
         date.setMinutes( date.getMinutes() + 25 );
@@ -22,7 +36,7 @@
         setTimeout(
           () => {
             if (document.querySelector('[data-refresh="<%= url %>"]').checked) {
-              window.location.reload();
+              window.location = `${window.location.origin}?autorefresh`;
             } else {
               tryToRefresh();
             }
@@ -30,7 +44,10 @@
           date.getTime() - new Date().getTime()
         );
       };
-      document.addEventListener("DOMContentLoaded", tryToRefresh);
+      document.addEventListener("DOMContentLoaded", () => {
+        updateCheckbox();
+        tryToRefresh();
+      });
       </script>
   <% end %>
   </div>
