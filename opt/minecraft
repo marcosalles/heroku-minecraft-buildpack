@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-mc_port=25566
-port=${1:-${PORT:-8080}}
-
 if [ -z "$NGROK_API_TOKEN" ]; then
   echo "You must set the NGROK_API_TOKEN config var to create a TCP tunnel!"
   exit 1
 fi
+
+mc_port=${MINECRAFT_PORT:-25566}
+port=${1:-${PORT:-8080}}
 
 # Start the TCP tunnel
 ngrok_cmd="bin/ngrok tcp -authtoken $NGROK_API_TOKEN -log stdout --log-level debug ${NGROK_OPTS} ${mc_port}"
@@ -23,6 +23,9 @@ eval "while true; do sleep ${WORLD_BACKUP_INTERVAL:-60}; bin/sync; done &"
 sync_pid=$!
 
 # create server config
+if [ -n "${MINECRAFT_WORLD_SEED}" ]; then
+  echo "level-seed=${MINECRAFT_WORLD_SEED}" >> /app/server.properties
+fi
 echo "server-port=${mc_port}" >> /app/server.properties
 for f in whitelist banned-players banned-ips ops; do
   test ! -f $f.json && echo -n "[]" > $f.json
