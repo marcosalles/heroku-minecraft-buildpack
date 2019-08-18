@@ -4,19 +4,33 @@
        url = line.match(/tcp:\/\/(.+:[0-9]+) /)[1]
   %>
   <div>
-    <p><strong>Minecraft Server address:</strong><pre><%= url %></pre></p>
+    <p><strong>Minecraft server address:</strong><pre><%= url %></pre></p>
     <p>Please wait at least a minute before joining the server.</p>
-    <p><strong>Next refresh:</strong><pre data-url="<%= url %>"></pre></p>
+    <p>
+      <label>
+        <strong>Auto refresh:</strong>
+        <input type="checkbox" data-refresh="<%= url %>">
+      </label>
+      <pre data-url="<%= url %>"></pre>
+    </p>
     <script type="text/javascript">
-      document.addEventListener("DOMContentLoaded", () => {
+      window.location.reload.bind(window.location);
+      const tryToRefresh = () => {
         let date = new Date();
         date.setMinutes( date.getMinutes() + 25 );
         document.querySelector('[data-url="<%= url %>"]').innerHTML = date.toTimeString().replace(/ .*/, '');
         setTimeout(
-          window.location.reload.bind(window.location),
+          () => {
+            if (document.querySelector('[data-refresh="<%= url %>"]').checked) {
+              window.location.reload();
+            } else {
+              tryToRefresh();
+            }
+          },
           date.getTime() - new Date().getTime()
         );
-      });
+      };
+      document.addEventListener("DOMContentLoaded", tryToRefresh);
       </script>
   <% end %>
   </div>
