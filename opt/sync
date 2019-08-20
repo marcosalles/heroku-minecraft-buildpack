@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-backupFileList="world world_nether world_the_end plugins server.properties *.json *.txt *.log"
+backupFileList="world world_nether world_the_end plugins server.properties *.json *.txt"
 
 if [ -n "$AWS_BUCKET" ]; then
   cat << EOF > .s3cfg

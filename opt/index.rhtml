@@ -1,9 +1,9 @@
 <%
   server_url = 'none'
   open('ngrok.log') do |f|
-  f.lines.select { |line| line.include?("URL:") }.each do |line|
-    server_url = line.match(/tcp:\/\/(.+:[0-9]+) /)[1]
-  end
+    f.lines.select { |line| line.include?("URL:") }.each do |line|
+      server_url = line.match(/tcp:\/\/(.+:[0-9]+) /)[1]
+    end
   end
 %>
 <div>
